@@ -1,0 +1,96 @@
+{
+    "build": {
+        "beforeDevCommand": "yarn dev",
+        "beforeBuildCommand": "yarn build",
+        "devPath": "http://localhost:1420",
+        "distDir": "../build",
+        "withGlobalTauri": false
+    },
+    "package": {
+        "productName": "toulen-sniffer",
+        "version": "0.0.0"
+    },
+    "tauri": {
+        "allowlist": {
+            "all": false,
+            "shell": {
+                "all": false,
+                "open": true
+            },
+            "dialog": {
+                "message": true
+            },
+            "fs": {
+                "readFile": true,
+                "createDir": true,
+                "writeFile": true,
+                "readDir": true
+            }
+        },
+        "bundle": {
+            "active": true,
+            "category": "DeveloperTool",
+            "copyright": "",
+            "deb": {
+                "depends": []
+            },
+            "externalBin": [],
+            "icon": [
+                "icons/32x32.png",
+                "icons/128x128.png",
+                "icons/128x128@2x.png",
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ],
+            "identifier": "com.gorgbus.toulen",
+            "longDescription": "",
+            "macOS": {
+                "entitlements": null,
+                "exceptionDomain": "",
+                "frameworks": [],
+                "providerShortName": null,
+                "signingIdentity": null
+            },
+            "resources": [],
+            "shortDescription": "",
+            "targets": "all",
+            "windows": {
+                "certificateThumbprint": null,
+                "digestAlgorithm": "sha256",
+                "timestampUrl": ""
+            }
+        },
+        "security": {
+            "csp": null
+        },
+        "updater": {
+            "active": true,
+            "endpoints": [
+                "https://gist.github.com/gorgbus/"
+            ],
+            "dialog": false,
+            "pubkey": ""
+        },
+        "windows": [
+            {
+                "fullscreen": false,
+                "height": 600,
+                "resizable": true,
+                "title": "Toulen Sniffer",
+                "width": 800,
+                "center": true,
+                "visible": false,
+                "url": "/"
+            },
+            {
+                "fullscreen": false,
+                "height": 600,
+                "width": 800,
+                "label": "Ostrava-Svinov",
+                "decorations": false,
+                "url": "svinov",
+                "center": true
+            }
+        ]
+    }
+}

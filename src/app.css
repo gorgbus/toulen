@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
+.chill {
+    transform: translatey(100%);
+}
+
+.sniff {
+    animation: sniff 1s ease-in-out;
+    transform: translatey(100%);
+}
+
+@keyframes sniff {
+    0% {
+        transform: rotate(0deg), translatey(0);
+    }
+    50% {
+        transform: rotate(15deg);
+    }
+    100% {
+        transform: rotate(0deg), translatey(0);
+    }
+}
+
+.cant_breath {
+    animation: cant_breath 2s alternate ease-in-out infinite;
+}
+
+@keyframes cant_breath {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.add {
+    animation: add 500ms ease-in-out alternate infinite;
+}
+
+.remove {
+    animation: remove 1s ease-in-out forwards;
+}
+
+@keyframes add {
+    0% {
+        opacity: 0;
+        transform: translatey(25%);
+    }
+    100% {
+        opacity: 1;
+        transform: translatey(0);
+    }
+}
+
+@keyframes remove {
+    0% {
+        opacity: 1;
+        transform: translatey(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translatey(25%);
+    }
+}
