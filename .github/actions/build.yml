@@ -1,0 +1,105 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  build:
+    name: ${{ matrix.kind }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        os: [windows-latest]
+
+    env:
+      RUST_VERSION: 1.62.1
+      NODE_VERSION: 16
+      GH_ACTIONS: true
+      RUST_BACKTRACE: full
+      API_URL: ${{ secrets.API_URL }}
+      VOICE_URL: ${{ secrets.VOICE_URL }}
+      DISCORD_APP_ID: ${{ secrets.DISCORD_APP_ID }}
+      TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+      TAURI_KEY_PASSWORD:
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Install rust
+        uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: ${{ env.RUST_VERSION }}
+
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Get app version
+        id: app_version
+        uses: juliangruber/read-file-action@v1.1.6
+        with:
+          path: "src-tauri/tauri.conf.json"
+
+      - name: Build application
+        run: |
+          yarn 
+          yarn tauri build
+
+      - name: Release App
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v${{ fromJson(steps.app_version.outputs.content).package.version }}"
+          files: |
+            src-tauri/target/release/bundle/msi/toulen-sniffer_*.msi
+            src-tauri/target/release/bundle/msi/toulen-sniffer_*.msi.zip
+
+      - name: Get .sig file
+        uses: juliangruber/read-file-action@v1.1.6
+        id: win_sig
+        with:
+          path: "src-tauri/target/release/bundle/msi/toulen-sniffer_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip.sig"
+
+      - name: Get meta.json from gist
+        uses: gorgbus/read-gist-file@main
+        id: gist_content
+        with:
+          gist_id: "64160457f8144af815a94eca5fbc6be7"
+          file_name: "meta.json"
+
+      - name: Edit meta.json version
+        uses: gorgbus/edit-json-string@main
+        id: new_gist_ver
+        with:
+          json_string: ${{ steps.gist_content.outputs.content }}
+          field: "version"
+          value: ${{ fromJson(steps.app_version.outputs.content).package.version }}
+
+      - name: Edit meta.json win download
+        uses: gorgbus/edit-json-string@main
+        id: new_gist_win
+        with:
+          json_string: ${{ steps.new_gist_ver.outputs.content }}
+          field: "platforms.windows-x86_64.url"
+          value: "https://github.com/gorgbus/kratercord/releases/download/v${{ fromJson(steps.app_version.outputs.content).package.version }}/toulen-sniffer_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
+
+      - name: Create local meta.json win
+        uses: jsdaniell/create-json@v1.2.1
+        with:
+          name: "meta.json"
+          json: ${{ steps.new_gist_sig_win.outputs.content }}
+          dir: "./"
+
+      - name: Update gist
+        uses: exuanbo/actions-deploy-gist@v1.1.4
+        with:
+          token: ${{ secrets.TOKEN }}
+          gist_id: 49616bddc8762d6e8a9f43fca5b74c06
+          gist_file_name: meta.json
+          file_path: "./meta.json"
