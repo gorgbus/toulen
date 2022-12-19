@@ -54,8 +54,7 @@ jobs:
         with:
           tag_name: "v${{ fromJson(steps.app_version.outputs.content).package.version }}"
           files: |
-            src-tauri/target/release/bundle/msi/toulen-sniffer_*.msi
-            src-tauri/target/release/bundle/msi/toulen-sniffer_*.msi.zip
+            src-tauri/target/release/bundle/msi/toulen-sniffer_*
 
       - name: Get .sig file
         uses: juliangruber/read-file-action@v1.1.6
