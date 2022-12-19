@@ -97,6 +97,6 @@ jobs:
         uses: exuanbo/actions-deploy-gist@v1.1.4
         with:
           token: ${{ secrets.TOKEN }}
-          gist_id: 49616bddc8762d6e8a9f43fca5b74c06
+          gist_id: 64160457f8144af815a94eca5fbc6be7
           gist_file_name: meta.json
           file_path: "./meta.json"
