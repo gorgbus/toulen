@@ -59,7 +59,7 @@ async fn close_game(window: tauri::Window) {
         .unwrap();
 }
 
-fn main() {
+fn main() -> Result<(), String> {
     let now = Utc::now();
     let ts: i64 = now.timestamp();
 
@@ -73,17 +73,16 @@ fn main() {
                 .large_text("Toulen Sniffer"),
         );
 
-    if let Ok(mut client) = DiscordIpcClient::new("1054430080786509894") {
-        println!("Connected to Discord");
+    let mut client =
+        DiscordIpcClient::new("1054430080786509894").map_err(|_| "Failed to create client")?;
 
-        match client.connect() {
-            Ok(_) => match client.set_activity(payload) {
-                Ok(_) => println!("Rich presence set"),
-                _ => (),
-            },
-            _ => (),
-        }
-    };
+    client
+        .connect()
+        .map_err(|_| "Failed to connect to Discord")?;
+
+    client
+        .set_activity(payload)
+        .map_err(|_| "Failed to set activity")?;
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -91,4 +90,6 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    Ok(())
 }
