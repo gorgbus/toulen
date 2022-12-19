@@ -3,6 +3,11 @@
     windows_subsystem = "windows"
 )]
 
+use chrono::prelude::Utc;
+use discord_rich_presence::{
+    activity::{Activity, Assets, Timestamps},
+    DiscordIpc, DiscordIpcClient,
+};
 use platform_dirs::AppDirs;
 use std::fs;
 use tauri::Manager;
@@ -44,9 +49,46 @@ async fn open_game(window: tauri::Window) {
     window.get_window("main").unwrap().show().unwrap();
 }
 
+#[tauri::command]
+async fn close_game(window: tauri::Window) {
+    window.get_window("main").unwrap().close().unwrap();
+    window
+        .get_window("Ostrava-Svinov")
+        .unwrap()
+        .close()
+        .unwrap();
+}
+
 fn main() {
+    let now = Utc::now();
+    let ts: i64 = now.timestamp();
+
+    let payload = Activity::new()
+        .timestamps(Timestamps::new().start(ts))
+        .details("Ostrava Svinov")
+        .state("Sniffuje toluen")
+        .assets(
+            Assets::new()
+                .large_image("toulen")
+                .large_text("Toulen Sniffer"),
+        );
+
+    if let Ok(mut client) = DiscordIpcClient::new("1054430080786509894") {
+        println!("Connected to Discord");
+
+        match client.connect() {
+            Ok(_) => match client.set_activity(payload) {
+                Ok(_) => println!("Rich presence set"),
+                _ => (),
+            },
+            _ => (),
+        }
+    };
+
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![save, get_save, open_game])
+        .invoke_handler(tauri::generate_handler![
+            save, get_save, open_game, close_game
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

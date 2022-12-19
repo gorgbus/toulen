@@ -15,9 +15,11 @@ tauri-build = { version = "1.2", features = [] }
 
 [dependencies]
 platform-dirs = "0.3.0"
+discord-rich-presence = "0.2.3"
+chrono = "0.4"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2", features = ["dialog-message", "fs-create-dir", "fs-read-dir", "fs-read-file", "fs-write-file", "shell-open", "updater"] }
+tauri = { version = "1.2", features = ["dialog-message", "fs-create-dir", "fs-read-dir", "fs-read-file", "fs-write-file", "shell-open", "updater", "window-close"] }
 
 [features]
 # by default Tauri runs in production mode

@@ -167,7 +167,7 @@
 <div
     class="bg-slate-700 h-full w-96 bg-opacity-25 p-4 flex flex-col justify-between"
 >
-    <ul class="text-gray-100 font-thin text-sm">
+    <ul class="text-gray-100 text-sm">
         <li class="text-yellow-400 w-full flex justify-between">
             {koruny} CZK
             <span
