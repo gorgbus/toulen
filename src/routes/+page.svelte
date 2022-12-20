@@ -1,52 +1,54 @@
 <script lang="ts">
-    import { invoke } from "@tauri-apps/api/tauri";
+    import { onMount, onDestroy } from "svelte";
+    import {
+        money_store,
+        auto_store,
+        regen_store,
+        stamina_store,
+        opened,
+    } from "$lib/stores";
+    import { load } from "$lib/util";
+    import Upgrade from "$lib/components/Upgrade.svelte";
+    import Money from "$lib/components/Money.svelte";
+    import type { Unsubscriber } from "svelte/store";
+    import UpgradeMenu from "$lib/components/UpgradeMenu.svelte";
 
-    let koruny = 0;
     let sniffing = false;
     let breath = 100;
-    let add_remove = 0;
     let unavailable = "";
     let cant_breathe = false;
     let auto_sniff = 1;
     let boost_dech = 1;
     let boost_prachy = 1;
     let max = false;
+    let auto: Unsubscriber, regen: Unsubscriber, stamina: Unsubscriber;
 
-    let anim: NodeJS.Timeout;
+    let upgrade = "";
 
-    (async () => {
-        const data: string = await invoke("get_save");
+    onMount(() => {
+        load();
 
-        const save = data.split(" ");
+        auto = auto_store.subscribe((value) => {
+            auto_sniff = value;
+        });
 
-        if (save.length !== 4) return;
+        regen = regen_store.subscribe((value) => {
+            boost_prachy = value;
+        });
 
-        koruny = Number(save[0]);
-        auto_sniff = Number(save[1]);
-        boost_dech = Number(save[2]);
-        boost_prachy = Number(save[3]);
-    })();
+        stamina = stamina_store.subscribe((value) => {
+            boost_dech = value;
+        });
+    });
 
-    const add = (amount: number) => {
-        add_remove = amount;
-
-        clearTimeout(anim);
-
-        anim = setTimeout(() => {
-            add_remove = 0;
-        }, 1100);
-    };
-
-    const set_unavailable = (upgrade: string) => {
-        unavailable = upgrade;
-
-        setTimeout(() => {
-            unavailable = "";
-        }, 250);
-    };
+    onDestroy(() => {
+        auto();
+        regen();
+        stamina();
+    });
 
     const dech = () => {
-        if (breath < 100) Math.max((breath += 1 * boost_dech), 100);
+        if (breath < 100) (breath += 1 * boost_dech) > 100 && (breath = 100);
 
         if (!cant_breathe)
             document
@@ -55,7 +57,7 @@
 
         setTimeout(() => {
             dech();
-        }, 250);
+        }, 200);
     };
 
     dech();
@@ -63,14 +65,8 @@
     const sniff = async () => {
         if (cant_breathe) return;
 
-        koruny += 1 * boost_prachy;
-        add(1 * boost_prachy);
-
-        await invoke("save", {
-            koruny,
-            autoSniff: auto_sniff,
-            boostPrachy: boost_prachy,
-            boostDech: boost_dech,
+        money_store.update((value) => {
+            return value + 1 * boost_prachy;
         });
 
         if (!sniffing)
@@ -91,7 +87,7 @@
             setTimeout(() => {
                 cant_breathe = false;
                 breath = 100;
-            }, 15000);
+            }, 20000);
         }
     };
 
@@ -104,127 +100,60 @@
     };
 
     auto_sniff_int();
-
-    const buy = async (item: string) => {
-        if (item === "auto_sniff") {
-            if (koruny >= 250 * auto_sniff) {
-                if (5000 - 100 * auto_sniff <= 0) {
-                    max = true;
-                    set_unavailable("auto_sniff");
-                    return;
-                }
-
-                add(-250 * auto_sniff);
-
-                koruny -= 250 * auto_sniff;
-                auto_sniff += 1;
-
-                if (5000 - 100 * auto_sniff <= 0) max = true;
-
-                await invoke("save", {
-                    koruny,
-                    autoSniff: auto_sniff,
-                    boostPrachy: boost_prachy,
-                    boostDech: boost_dech,
-                });
-            } else set_unavailable("auto_sniff");
-        }
-
-        if (item === "boost_dech") {
-            if (koruny >= 200 * boost_dech) {
-                add(-200 * boost_dech);
-
-                koruny -= 200 * boost_dech;
-                boost_dech += 1;
-
-                await invoke("save", {
-                    koruny,
-                    autoSniff: auto_sniff,
-                    boostPrachy: boost_prachy,
-                    boostDech: boost_dech,
-                });
-            } else set_unavailable("boost_dech");
-        }
-
-        if (item === "boost_prachy") {
-            if (koruny >= 500 * boost_prachy) {
-                add(-500 * boost_prachy);
-
-                koruny -= 500 * boost_prachy;
-                boost_prachy += 1;
-
-                await invoke("save", {
-                    koruny,
-                    autoSniff: auto_sniff,
-                    boostPrachy: boost_prachy,
-                    boostDech: boost_dech,
-                });
-            } else set_unavailable("boost_prachy");
-        }
-    };
 </script>
 
 <div
     class="bg-slate-700 h-full w-96 bg-opacity-25 p-4 flex flex-col justify-between"
 >
     <ul class="text-gray-100 text-sm">
-        <li class="text-yellow-400 w-full flex justify-between">
-            {koruny} CZK
-            <span
-                class={`${add_remove === 0 && "hidden"} ${
-                    add_remove > 0
-                        ? "text-green-500 add"
-                        : "text-red-400 remove"
-                }`}>{add_remove > 0 ? "+" : ""} {add_remove} CZK</span
-            >
+        <li>
+            <Money />
         </li>
         <li><br /></li>
         <li
-            on:keypress={() => buy("auto_sniff")}
-            on:click={() => buy("auto_sniff")}
-            class="text-yellow-500"
+            on:click={() => (upgrade = "auto sniff")}
+            on:keydown={() => (upgrade = "auto sniff")}
         >
-            ({max || 5000 - 100 * auto_sniff <= 0 ? "max" : auto_sniff})
-            <span
-                class={`cursor-pointer transition-all ${
-                    unavailable === "auto_sniff"
-                        ? "text-red-500"
-                        : "hover:text-amber-400 text-gray-100"
-                }`}>auto sniff ({250 * auto_sniff}CZK)</span
-            >
+            <Upgrade
+                name="auto sniff"
+                value={max || 5000 - 100 * auto_sniff <= 0 ? "max" : auto_sniff}
+                name_class={unavailable === "auto_sniff"
+                    ? "text-red-500"
+                    : "group-hover:text-amber-400 text-gray-100"}
+            />
         </li>
         <li
-            on:keypress={() => buy("boost_dech")}
-            on:click={() => buy("boost_dech")}
-            class="text-yellow-500"
+            on:click={() => (upgrade = "dech")}
+            on:keydown={() => (upgrade = "dech")}
         >
-            ({boost_dech})
-            <span
-                class={`cursor-pointer transition-all ${
-                    unavailable === "boost_dech"
-                        ? "text-red-500"
-                        : "hover:text-blue-400 text-gray-100"
-                }`}>boost dech ({200 * boost_dech}CZK)</span
-            >
+            <Upgrade
+                name="dech"
+                value={boost_dech}
+                name_class={unavailable === "boost_dech"
+                    ? "text-red-500"
+                    : "group-hover:text-blue-400 text-gray-100"}
+            />
         </li>
         <li
-            on:keypress={() => buy("boost_prachy")}
-            on:click={() => buy("boost_prachy")}
-            class="text-yellow-500"
+            on:click={() => (upgrade = "prachy")}
+            on:keydown={() => (upgrade = "prachy")}
         >
-            ({boost_prachy})
-            <span
-                class={`cursor-pointer transition-all ${
-                    unavailable === "boost_prachy"
-                        ? "text-red-500"
-                        : "hover:text-green-400 text-gray-100"
-                }`}>boost prachy ({500 * boost_prachy}CZK)</span
-            >
+            <Upgrade
+                name="prachy"
+                value={boost_prachy}
+                name_class={unavailable === "boost_prachy"
+                    ? "text-red-500"
+                    : "group-hover:text-green-400 text-gray-100"}
+            />
         </li>
     </ul>
 
+    {#if $opened}
+        <UpgradeMenu {upgrade} />
+    {/if}
+
     <div>
-        <label class="text-gray-100" for="dech"
+        <label class="text-gray-100 font-semibold" for="dech"
             >{cant_breathe ? "kokot se dusí" : "dech"}</label
         >
         <div id="dech" class="w-full h-4 rounded bg-gray-500">

@@ -26,9 +26,11 @@
     0% {
         transform: rotate(0deg), translatey(0);
     }
+
     50% {
         transform: rotate(15deg);
     }
+
     100% {
         transform: rotate(0deg), translatey(0);
     }
@@ -42,9 +44,11 @@
     0% {
         opacity: 1;
     }
+
     50% {
         opacity: 0.5;
     }
+
     100% {
         opacity: 1;
     }
@@ -56,6 +60,7 @@
 
 .remove {
     animation: remove 1s ease-in-out forwards;
+
 }
 
 @keyframes add {
@@ -63,6 +68,7 @@
         opacity: 0;
         transform: translatey(25%);
     }
+
     100% {
         opacity: 1;
         transform: translatey(0);
@@ -74,6 +80,7 @@
         opacity: 1;
         transform: translatey(0);
     }
+
     100% {
         opacity: 0;
         transform: translatey(25%);

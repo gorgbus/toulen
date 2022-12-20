@@ -50,7 +50,7 @@
     </div>
 
     <button
-        class="text-xl text-gray-100 transition-all hover:text-blue-400 disabled:text-gray-500"
+        class="text-xl text-gray-100 transition-all font-semibold hover:text-blue-400 disabled:text-gray-500"
         on:click={start_game}
         disabled={!state.startsWith("Aktuální verze ")}
     >
@@ -59,7 +59,7 @@
 
     <button
         on:click={close_game}
-        class="text-gray-100 transition-all hover:text-red-500"
+        class="text-gray-100 transition-all font-semibold hover:text-red-500"
     >
         Odejít
     </button>
