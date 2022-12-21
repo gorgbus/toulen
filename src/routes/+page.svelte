@@ -28,6 +28,9 @@
     let max = false;
     let auto: Unsubscriber, regen: Unsubscriber, stamina: Unsubscriber;
 
+    let dech_interval: NodeJS.Timer;
+    let sniff_interval: NodeJS.Timeout;
+
     let upgrade = "";
     let tooltip = "";
 
@@ -51,22 +54,19 @@
         auto();
         regen();
         stamina();
+
+        clearInterval(dech_interval);
+        clearTimeout(sniff_interval);
     });
 
-    const dech = () => {
+    dech_interval = setInterval(() => {
         if (breath < 100) (breath += 1 * boost_dech) > 100 && (breath = 100);
 
         if (!cant_breathe)
             document
                 .querySelector("#dech_bar")
                 ?.setAttribute("style", `width: ${breath}%`);
-
-        setTimeout(() => {
-            dech();
-        }, 200);
-    };
-
-    dech();
+    }, 200);
 
     const sniff = async () => {
         if (cant_breathe) return;
@@ -100,7 +100,7 @@
     const auto_sniff_int = () => {
         if (auto_sniff > 1) sniff();
 
-        setTimeout(() => {
+        sniff_interval = setTimeout(() => {
             auto_sniff_int();
         }, 5000 - 100 * auto_sniff);
     };
