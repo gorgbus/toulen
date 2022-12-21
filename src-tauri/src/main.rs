@@ -10,7 +10,6 @@ use discord_rich_presence::{
 };
 use platform_dirs::AppDirs;
 use std::fs;
-use tauri::Manager;
 
 #[tauri::command]
 fn get_save() -> String {
@@ -29,26 +28,7 @@ fn get_save() -> String {
     res
 }
 
-#[tauri::command]
-async fn open_game(window: tauri::Window) {
-    if let Some(launcher) = window.get_window("Ostrava-Svinov") {
-        launcher.close().unwrap();
-    }
-
-    window.get_window("main").unwrap().show().unwrap();
-}
-
-#[tauri::command]
-async fn close_game(window: tauri::Window) {
-    window.get_window("main").unwrap().close().unwrap();
-    window
-        .get_window("Ostrava-Svinov")
-        .unwrap()
-        .close()
-        .unwrap();
-}
-
-fn main() -> Result<(), String> {
+fn main() {
     let now = Utc::now();
     let ts: i64 = now.timestamp();
 
@@ -62,21 +42,17 @@ fn main() -> Result<(), String> {
                 .large_text("Toulen Sniffer"),
         );
 
-    let mut client =
-        DiscordIpcClient::new("1054430080786509894").map_err(|_| "Failed to create client")?;
+    let mut client = DiscordIpcClient::new("1054430080786509894").unwrap();
 
-    client
-        .connect()
-        .map_err(|_| "Failed to connect to Discord")?;
-
-    client
-        .set_activity(payload)
-        .map_err(|_| "Failed to set activity")?;
+    match client.connect() {
+        Ok(_) => match client.set_activity(payload) {
+            _ => (),
+        },
+        _ => (),
+    }
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_save, open_game, close_game])
+        .invoke_handler(tauri::generate_handler![get_save])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-
-    Ok(())
 }

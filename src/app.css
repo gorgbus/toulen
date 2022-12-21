@@ -11,6 +11,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     -select: none;
+    user-select: none;
 }
 
 .chill {
@@ -85,4 +86,8 @@
         opacity: 0;
         transform: translatey(25%);
     }
+}
+
+.title_bar_icons {
+    filter: invert(41%) sepia(12%) saturate(12%) hue-rotate(351deg) brightness(92%) contrast(88%);
 }

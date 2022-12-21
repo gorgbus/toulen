@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import { invoke } from "@tauri-apps/api/tauri";
     import { money_store } from "$lib/stores";
     import type { Unsubscriber } from "svelte/store";
 
@@ -23,7 +22,7 @@
         unsub = money_store.subscribe((value) => {
             localStorage.setItem("money", value.toString());
 
-            add_remove = value - money;
+            if (Number(value - money)) add_remove = value - money;
             clearTimeout(anim);
 
             anim = setTimeout(() => {

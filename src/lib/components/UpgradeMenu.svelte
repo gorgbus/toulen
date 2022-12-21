@@ -26,6 +26,8 @@
         stamina_sub: Unsubscriber,
         money_sub: Unsubscriber;
 
+    let max = false;
+
     const click = (e: MouseEvent) => {
         if (e.target instanceof HTMLElement && e.target !== null)
             if (e.target?.classList.contains("pozadi")) opened.set(false);
@@ -77,6 +79,10 @@
     const buy = () => {
         if (upgrade === "auto sniff") {
             if (money >= 250 * auto) {
+                if (5000 - (auto + 1) * 100 === 0) {
+                    return (max = true);
+                }
+
                 add_money(-250 * auto);
 
                 auto_store.update((value) => {
@@ -86,6 +92,10 @@
 
                     return value;
                 });
+
+                if (5000 - auto * 100 === 0) {
+                    return (max = true);
+                }
             }
         }
 
@@ -117,6 +127,15 @@
             }
         }
     };
+
+    let can_buy = true;
+
+    $: {
+        if (cost > money) can_buy = false;
+        else can_buy = true;
+
+        if (max) can_buy = false;
+    }
 </script>
 
 <div
@@ -132,7 +151,7 @@
         <img class="w-32 h-32" src="/toulen.svg" alt="toulen" />
 
         <button
-            disabled={cost > money}
+            disabled={!can_buy}
             on:click={buy}
             class="rounded w-48 mt-4 h-12 bg-gray-700 font-semibold text-yellow-400 text-xl transition-all hover:bg-gray-600 disabled:opacity-60 disabled:text-red-600"
         >

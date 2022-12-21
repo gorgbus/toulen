@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { invoke } from "@tauri-apps/api/tauri";
+    import { goto } from "$app/navigation";
     import { checkUpdate, installUpdate } from "@tauri-apps/api/updater";
     import { getVersion } from "@tauri-apps/api/app";
     import { relaunch } from "@tauri-apps/api/process";
+    import { onMount } from "svelte";
     import { appWindow } from "@tauri-apps/api/window";
 
     let state = "Vyhledávání aktualizací...";
@@ -20,14 +21,14 @@
     };
 
     const start_game = async () => {
-        await invoke("open_game");
+        goto("/");
     };
 
     const close_game = async () => {
-        await invoke("close_game");
+        appWindow.close();
     };
 
-    (async () => {
+    onMount(async () => {
         const version = await getVersion();
         const update = await checkUpdate();
 
@@ -37,10 +38,14 @@
         }
 
         state = "Dostupná aktualizace ke stažení";
-    })();
+    });
 </script>
 
-<img class="opacity-10 w-full h-full absolute z-0" src="/bg.jpg" alt="bg" />
+<img
+    class="opacity-10 w-full h-[calc(100%-1rem)] absolute z-0"
+    src="/bg.jpg"
+    alt="bg"
+/>
 
 <div class="flex flex-col items-center justify-center w-full h-full z-10">
     <div class="flex items-center mb-32 -mt-16">

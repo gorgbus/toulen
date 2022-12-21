@@ -16,6 +16,8 @@ export const load = async () => {
         auto_store.set(Number(save[1]));
         regen_store.set(Number(save[3]));
     } else {
+        if (Number(localStorage.getItem("auto")) > 49) localStorage.setItem("auto", "49");
+
         stamina_store.set(Number(localStorage.getItem("stamina")));
         auto_store.set(Number(localStorage.getItem("auto")));
         regen_store.set(Number(localStorage.getItem("regen")));

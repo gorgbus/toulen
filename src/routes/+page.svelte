@@ -12,6 +12,11 @@
     import Money from "$lib/components/Money.svelte";
     import type { Unsubscriber } from "svelte/store";
     import UpgradeMenu from "$lib/components/UpgradeMenu.svelte";
+    import MenuIcon from "$lib/components/icons/MenuIcon.svelte";
+    import ShopIcon from "$lib/components/icons/ShopIcon.svelte";
+    import SettingsIcon from "$lib/components/icons/SettingsIcon.svelte";
+    import { goto } from "$app/navigation";
+    import Tooltip from "$lib/components/Tooltip.svelte";
 
     let sniffing = false;
     let breath = 100;
@@ -24,6 +29,7 @@
     let auto: Unsubscriber, regen: Unsubscriber, stamina: Unsubscriber;
 
     let upgrade = "";
+    let tooltip = "";
 
     onMount(() => {
         load();
@@ -163,6 +169,32 @@
                     cant_breathe ? "bg-red-600 cant_breath" : "bg-blue-400"
                 }`}
             />
+        </div>
+
+        <div class="flex items-center pt-4">
+            <div
+                on:click={() => goto("/svinov")}
+                on:keydown={() => goto("/svinov")}
+                on:mouseover={() => (tooltip = "menu")}
+                on:mouseout={() => (tooltip = "")}
+                on:focus={() => (tooltip = "menu")}
+                on:blur={() => (tooltip = "")}
+                class="p-2 rounded cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all relative"
+            >
+                <MenuIcon />
+            </div>
+
+            <div
+                class="p-2 mx-4 rounded cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all relative"
+            >
+                <ShopIcon />
+            </div>
+
+            <div
+                class="p-2 rounded cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all relative"
+            >
+                <SettingsIcon />
+            </div>
         </div>
     </div>
 </div>

@@ -27,7 +27,12 @@
                 "readDir": true
             },
             "window": {
-                "close": true
+                "close": true,
+                "maximize": true,
+                "minimize": true,
+                "startDragging": true,
+                "unmaximize": true,
+                "unminimize": true
             }
         },
         "bundle": {
@@ -80,22 +85,13 @@
                 "height": 600,
                 "resizable": true,
                 "title": "Toulen Sniffer",
+                "label": "Toulen-Sniffer",
                 "width": 800,
                 "minWidth": 800,
                 "minHeight": 600,
                 "center": true,
-                "visible": false,
-                "url": "/"
-            },
-            {
-                "fullscreen": false,
-                "height": 600,
-                "width": 800,
-                "label": "Ostrava-Svinov",
                 "decorations": false,
-                "url": "svinov",
-                "center": true,
-                "resizable": false
+                "url": "svinov"
             }
         ]
     }
