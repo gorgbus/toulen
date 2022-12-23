@@ -5,8 +5,12 @@
     import { relaunch } from "@tauri-apps/api/process";
     import { onMount } from "svelte";
     import { appWindow } from "@tauri-apps/api/window";
+    import Login from "$lib/components/Login.svelte";
+    import { opened, player_store } from "$lib/stores";
+    import { get_player, update_player } from "$lib/util";
 
     let state = "Vyhledávání aktualizací...";
+    let logout = false;
 
     const update = async () => {
         state = "Stahuji aktualizaci...";
@@ -25,10 +29,30 @@
     };
 
     const close_game = async () => {
+        await update_player();
+
         appWindow.close();
     };
 
+    const fn_logout = () => {
+        player_store.update((player) => ({
+            ...player,
+            id: -1,
+        }));
+        logout = false;
+
+        localStorage.removeItem("access_token");
+    };
+
     onMount(async () => {
+        if ($player_store.id === -1) {
+            const player = await get_player();
+
+            if (player) {
+                player_store.set(player);
+            }
+        }
+
         const version = await getVersion();
         const update = await checkUpdate();
 
@@ -63,6 +87,13 @@
     </button>
 
     <button
+        on:click={() => goto("/leaderboards")}
+        class="text-gray-100 transition-all font-semibold hover:text-blue-400 disabled:text-gray-500"
+    >
+        Žebříčky
+    </button>
+
+    <button
         on:click={close_game}
         class="text-gray-100 transition-all font-semibold hover:text-red-500"
     >
@@ -74,4 +105,34 @@
         disabled={state !== "Dostupná aktualizace ke stažení"}
         class="text-green-500 mt-4 disabled:text-gray-400">{state}</button
     >
+
+    <button
+        on:click={() => opened.set(true)}
+        disabled={$player_store.id !== -1}
+        class="text-gray-100 absolute left-4 bottom-4"
+    >
+        {#if $player_store.id === -1}
+            Přihlásit se
+        {:else}
+            <span>Přihlášen jako </span>
+            <button
+                on:click={() => (logout = !logout)}
+                class="font-semibold text-green-500 relative"
+            >
+                {$player_store.user.name}
+                <span
+                    on:click={fn_logout}
+                    on:keydown={fn_logout}
+                    class={`${
+                        logout ? "block" : "hidden"
+                    } bottom-full absolute left-1/2 -translate-x-1/2 w-24 p-1 text-xs bg-gray-700 rounded text-red-500 shadow-lg`}
+                    >Odhlásit se</span
+                >
+            </button>
+        {/if}
+    </button>
+
+    {#if $opened}
+        <Login />
+    {/if}
 </div>

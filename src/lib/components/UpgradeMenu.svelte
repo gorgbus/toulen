@@ -139,7 +139,7 @@
 </script>
 
 <div
-    class="flex items-center justify-center w-full h-full bg-black absolute top-0 left-0 z-20 bg-opacity-60 pozadi"
+    class="flex items-center justify-center w-full h-full bg-black absolute top-0 left-0 z-20 bg-opacity-40 pozadi"
 >
     <div
         class="w-[400px] h-[400px] absolute bg-gray-800 rounded menu flex items-center justify-center flex-col"

@@ -12,6 +12,7 @@ rust-version = "1.57"
 
 [build-dependencies]
 tauri-build = { version = "1.2", features = [] }
+dotenv-build = "0.1"
 
 [dependencies]
 platform-dirs = "0.3.0"

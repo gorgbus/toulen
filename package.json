@@ -12,7 +12,8 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.2.0"
+    "@tauri-apps/api": "^1.2.0",
+    "axios": "^1.2.1"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "next",

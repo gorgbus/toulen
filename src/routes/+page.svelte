@@ -6,8 +6,9 @@
         regen_store,
         stamina_store,
         opened,
+        player_store,
     } from "$lib/stores";
-    import { load } from "$lib/util";
+    import { load, update_player } from "$lib/util";
     import Upgrade from "$lib/components/Upgrade.svelte";
     import Money from "$lib/components/Money.svelte";
     import type { Unsubscriber } from "svelte/store";
@@ -30,6 +31,7 @@
 
     let dech_interval: NodeJS.Timer;
     let sniff_interval: NodeJS.Timeout;
+    let save_interval: NodeJS.Timer;
 
     let upgrade = "";
     let tooltip = "";
@@ -48,6 +50,10 @@
         stamina = stamina_store.subscribe((value) => {
             boost_dech = value;
         });
+
+        save_interval = setInterval(async () => {
+            if ($player_store.id !== -1) await update_player();
+        }, 60000);
     });
 
     onDestroy(() => {
@@ -57,6 +63,7 @@
 
         clearInterval(dech_interval);
         clearTimeout(sniff_interval);
+        clearInterval(save_interval);
     });
 
     dech_interval = setInterval(() => {

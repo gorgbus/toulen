@@ -4,8 +4,6 @@
     export let id: string;
 
     let visible = shown === id;
-
-    console.log(visible);
 </script>
 
 <div

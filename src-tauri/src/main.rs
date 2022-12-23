@@ -9,7 +9,7 @@ use discord_rich_presence::{
     DiscordIpc, DiscordIpcClient,
 };
 use platform_dirs::AppDirs;
-use std::fs;
+use std::{env, fs};
 
 #[tauri::command]
 fn get_save() -> String {
@@ -26,6 +26,11 @@ fn get_save() -> String {
     fs::remove_dir_all(&app_data).unwrap_or_default();
 
     res
+}
+
+#[tauri::command]
+fn get_api_url() -> String {
+    env::var("API_URL").unwrap_or_default()
 }
 
 fn main() {
@@ -52,7 +57,7 @@ fn main() {
     }
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_save])
+        .invoke_handler(tauri::generate_handler![get_save, get_api_url])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
