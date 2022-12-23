@@ -19,6 +19,7 @@ jobs:
       NODE_VERSION: 16
       GH_ACTIONS: true
       RUST_BACKTRACE: full
+      API_URL: ${{ secrets.API_URL }}
       TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
       TAURI_KEY_PASSWORD:
 
