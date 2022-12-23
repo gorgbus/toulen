@@ -30,7 +30,7 @@ fn get_save() -> String {
 
 #[tauri::command]
 fn get_api_url() -> String {
-    env::var("API_URL").unwrap_or_default()
+    env!("API_URL").to_string()
 }
 
 fn main() {

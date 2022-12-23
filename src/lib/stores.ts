@@ -11,6 +11,6 @@ export let player_store = writable({
     id: -1,
     money: 0,
     user: {
-        name: ""
+        name: "none"
     }
 });

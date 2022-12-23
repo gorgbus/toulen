@@ -46,10 +46,12 @@
 
     onMount(async () => {
         if ($player_store.id === -1) {
-            const player = await get_player();
+            const userId = localStorage.getItem("user_id");
 
-            if (player) {
-                player_store.set(player);
+            if (userId) {
+                const player = await get_player();
+
+                if (player) player_store.set(player);
             }
         }
 
@@ -119,7 +121,7 @@
                 on:click={() => (logout = !logout)}
                 class="font-semibold text-green-500 relative"
             >
-                {$player_store.user.name}
+                {$player_store.user?.name}
                 <span
                     on:click={fn_logout}
                     on:keydown={fn_logout}
