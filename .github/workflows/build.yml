@@ -56,27 +56,27 @@ jobs:
         with:
           tag_name: "v${{ fromJson(steps.app_version.outputs.content).package.version }}"
           files: |
-            src-tauri/target/release/bundle/msi/ToulenSniffer_*
+            src-tauri/target/release/bundle/msi/ToulenSnifferDEV_*
 
       - name: Upload to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.GOOGLE_API }}
           folderId: ${{ secrets.FOLDER_ID }}
-          file: "src-tauri/target/release/bundle/msi/ToulenSniffer_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
+          file: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
 
       - name: Upload to Google Drive 2
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.GOOGLE_API }}
           folderId: ${{ secrets.FOLDER_ID }}
-          file: "src-tauri/target/release/bundle/msi/ToulenSniffer_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi"
+          file: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi"
 
       - name: Get .sig file
         uses: juliangruber/read-file-action@v1.1.6
         id: win_sig
         with:
-          path: "src-tauri/target/release/bundle/msi/ToulenSniffer_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip.sig"
+          path: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip.sig"
 
       - name: Get meta.json from gist
         uses: gorgbus/read-gist-file@main
