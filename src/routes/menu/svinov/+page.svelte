@@ -7,7 +7,8 @@
     import { appWindow } from "@tauri-apps/api/window";
     import Login from "$lib/components/Login.svelte";
     import { opened, player_store } from "$lib/stores";
-    import { get_player, update_player } from "$lib/util";
+    import { get_player, update_player } from "$lib/api";
+    import { load } from "$lib/util";
 
     let state = "Vyhledávání aktualizací...";
     let logout = false;
@@ -24,12 +25,8 @@
         state = "Aktualizace nainstalována";
     };
 
-    const start_game = async () => {
-        goto("/");
-    };
-
     const close_game = async () => {
-        await update_player();
+        // await update_player();
 
         appWindow.close();
     };
@@ -46,32 +43,28 @@
 
     onMount(async () => {
         if ($player_store.id === -1) {
-            const userId = localStorage.getItem("user_id");
+            // const userId = localStorage.getItem("user_id");
 
-            if (userId) {
-                const player = await get_player();
+            // if (userId) {
+            //     const player = await get_player();
 
-                if (player) player_store.set(player);
-            }
+            //     if (player) player_store.set(player);
+            // }
+
+            load();
         }
 
         const version = await getVersion();
-        const update = await checkUpdate();
+        // const update = await checkUpdate();
 
-        if (!update.shouldUpdate) {
-            state = `Aktuální verze v${version}`;
+        if (/*!update.shouldUpdate*/ true) {
+            state = `Aktuální verze v${version}a`;
             return;
         }
 
         state = "Dostupná aktualizace ke stažení";
     });
 </script>
-
-<img
-    class="opacity-10 w-full h-[calc(100%-1rem)] absolute z-0"
-    src="/bg.jpg"
-    alt="bg"
-/>
 
 <div class="flex flex-col items-center justify-center w-full h-full z-10">
     <div class="flex items-center mb-32 -mt-16">
@@ -82,17 +75,24 @@
 
     <button
         class="text-xl text-gray-100 transition-all font-semibold hover:text-blue-400 disabled:text-gray-500"
-        on:click={start_game}
+        on:click={() => goto("/game")}
         disabled={!state.startsWith("Aktuální verze ")}
     >
         Hrát
     </button>
 
     <button
-        on:click={() => goto("/leaderboards")}
-        class="text-gray-100 transition-all font-semibold hover:text-blue-400 disabled:text-gray-500"
+        on:click={() => goto("/menu/leaderboards")}
+        class="text-gray-100 transition-all font-semibold hover:text-blue-400"
     >
         Žebříčky
+    </button>
+
+    <button
+        on:click={() => goto("/menu/stats")}
+        class="text-gray-100 transition-all font-semibold hover:text-blue-400"
+    >
+        Statistiky
     </button>
 
     <button
@@ -110,7 +110,7 @@
 
     <button
         on:click={() => opened.set(true)}
-        disabled={$player_store.id !== -1}
+        disabled={$player_store.id !== -1 || true}
         class="text-gray-100 absolute left-4 bottom-4"
     >
         {#if $player_store.id === -1}

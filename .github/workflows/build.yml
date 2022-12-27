@@ -1,6 +1,7 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - release
@@ -56,6 +57,20 @@ jobs:
           tag_name: "v${{ fromJson(steps.app_version.outputs.content).package.version }}"
           files: |
             src-tauri/target/release/bundle/msi/ToulenSniffer_*
+
+      - name: Upload to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.GOOGLE_API }}
+          folderId: ${{ secrets.FOLDER_ID }}
+          file: "src-tauri/target/release/bundle/msi/ToulenSniffer_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
+
+      - name: Upload to Google Drive 2
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.GOOGLE_API }}
+          folderId: ${{ secrets.FOLDER_ID }}
+          file: "src-tauri/target/release/bundle/msi/ToulenSniffer_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi"
 
       - name: Get .sig file
         uses: juliangruber/read-file-action@v1.1.6

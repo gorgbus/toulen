@@ -5,10 +5,9 @@
         create_player,
         fn_login,
         get_player,
-        load,
         register,
         update_player,
-    } from "$lib/util";
+    } from "$lib/api";
 
     let loading = false;
 

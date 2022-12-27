@@ -1,35 +1,25 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import { money_store } from "$lib/stores";
+    import { player_store } from "$lib/stores";
     import type { Unsubscriber } from "svelte/store";
+    import { formatter } from "$lib/util";
 
-    let money: number;
+    let current_money: number;
     let unsub: Unsubscriber;
     let anim: NodeJS.Timeout;
     let add_remove = 0;
 
-    let formatter = new Intl.NumberFormat("cs-CZ", {
-        notation: "compact",
-        style: "currency",
-        currency: "CZK",
-    });
-
     onMount(async () => {
-        if (!Number(localStorage.getItem("money")))
-            localStorage.setItem("money", "0");
-        else money_store.set(Number(localStorage.getItem("money")));
-
-        unsub = money_store.subscribe((value) => {
-            localStorage.setItem("money", value.toString());
-
-            if (Number(value - money)) add_remove = value - money;
+        unsub = player_store.subscribe(({ money }) => {
+            if (Number(money - current_money))
+                add_remove = money - current_money;
             clearTimeout(anim);
 
             anim = setTimeout(() => {
                 add_remove = 0;
             }, 1000);
 
-            money = value;
+            current_money = money;
         });
     });
 
@@ -43,7 +33,7 @@
 >
     <div class="px-3 flex justify-between items-center w-full">
         <h1 class="font-semibold text-yellow-400 text-xl">
-            {formatter.format(money)}
+            {formatter.format(current_money)}
         </h1>
 
         <span

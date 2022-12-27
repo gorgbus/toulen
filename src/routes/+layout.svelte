@@ -2,7 +2,7 @@
     import { page } from "$app/stores";
     import { appWindow } from "@tauri-apps/api/window";
     import "../app.css";
-    import { update_player } from "$lib/util";
+    import { update_player } from "$lib/api";
 
     document.onkeydown = function (e) {
         if (e.key === "F5") {
@@ -15,7 +15,7 @@
     };
 
     const close = async () => {
-        await update_player();
+        // await update_player();
 
         appWindow.close();
     };
@@ -35,7 +35,9 @@
     class="w-full h-4 fixed top-0 left-0 z-50 bg-zinc-800 flex items-center justify-between"
 >
     <span class="text-sm font-semibold ml-4 text-zinc-400"
-        >{$page.route.id === "/" ? "Toulen Sniffer" : "Ostrava Svinov"}</span
+        >{$page.route.id === "/game"
+            ? "Toulen Sniffer"
+            : "Ostrava Svinov"}</span
     >
 
     <div class="flex items-center">
