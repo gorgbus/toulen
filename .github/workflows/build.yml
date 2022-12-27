@@ -58,19 +58,19 @@ jobs:
           files: |
             src-tauri/target/release/bundle/msi/ToulenSnifferDEV_*
 
-      - name: Upload to Google Drive
-        uses: Jodebu/upload-to-drive@master
+      - name: Upload to Dropbox
+        uses: deka0106/upload-to-dropbox@v2
         with:
-          credentials: ${{ secrets.GOOGLE_API }}
-          folder: ${{ secrets.FOLDER_ID }}
-          target: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
+          dropbox_access_token: ${{ secrets.DROPBOX }}
+          dest: /toulen/
+          src: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
 
-      - name: Upload to Google Drive 2
-        uses: Jodebu/upload-to-drive@master
+      - name: Upload to Dropbox 2
+        uses: deka0106/upload-to-dropbox@v2
         with:
-          credentials: ${{ secrets.GOOGLE_API }}
-          folder: ${{ secrets.FOLDER_ID }}
-          target: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi"
+          dropbox_access_token: ${{ secrets.DROPBOX }}
+          dest: /toulen/
+          src: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi"
 
       - name: Get .sig file
         uses: juliangruber/read-file-action@v1.1.6
