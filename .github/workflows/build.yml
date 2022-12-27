@@ -59,18 +59,18 @@ jobs:
             src-tauri/target/release/bundle/msi/ToulenSnifferDEV_*
 
       - name: Upload to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
+        uses: Jodebu/upload-to-drive@main
         with:
           credentials: ${{ secrets.GOOGLE_API }}
-          folderId: ${{ secrets.FOLDER_ID }}
-          file: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
+          folder: ${{ secrets.FOLDER_ID }}
+          target: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
 
       - name: Upload to Google Drive 2
-        uses: adityak74/google-drive-upload-git-action@main
+        uses: Jodebu/upload-to-drive@main
         with:
           credentials: ${{ secrets.GOOGLE_API }}
-          folderId: ${{ secrets.FOLDER_ID }}
-          file: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi"
+          folder: ${{ secrets.FOLDER_ID }}
+          target: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi"
 
       - name: Get .sig file
         uses: juliangruber/read-file-action@v1.1.6
