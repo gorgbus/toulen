@@ -59,14 +59,14 @@ jobs:
             src-tauri/target/release/bundle/msi/ToulenSnifferDEV_*
 
       - name: Upload to Google Drive
-        uses: Jodebu/upload-to-drive@main
+        uses: Jodebu/upload-to-drive@master
         with:
           credentials: ${{ secrets.GOOGLE_API }}
           folder: ${{ secrets.FOLDER_ID }}
           target: "src-tauri/target/release/bundle/msi/ToulenSnifferDEV_${{ fromJson(steps.app_version.outputs.content).package.version }}_x64_en-US.msi.zip"
 
       - name: Upload to Google Drive 2
-        uses: Jodebu/upload-to-drive@main
+        uses: Jodebu/upload-to-drive@master
         with:
           credentials: ${{ secrets.GOOGLE_API }}
           folder: ${{ secrets.FOLDER_ID }}
