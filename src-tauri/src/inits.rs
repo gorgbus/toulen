@@ -43,7 +43,7 @@ pub struct Player {
 impl Default for Player {
     fn default() -> Self {
         Self {
-            money: 0,
+            money: 10000,
             stamina_lvl: 3,
             regen_lvl: 9,
             auto_lvl: 12,

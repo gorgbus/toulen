@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, sync::Arc, time::Duration};
+use std::{borrow::Borrow, ops::Div, sync::Arc, time::Duration};
 
 use serde::Serialize;
 use tauri::{AppHandle, Manager};
@@ -121,11 +121,13 @@ impl Synced {
         fn get_cost(base_cost: u32, curr_level: u32) -> u32 {
             let powers = [0.0, 0.03, 0.06];
 
-            let power = Decimal::from_u32(curr_level).unwrap() / dec!(3) / dec!(10)
+            let power = Decimal::from_u32(curr_level / 3).unwrap() / dec!(10)
                 + Decimal::from_f64(powers[(curr_level % 3) as usize]).unwrap()
                 + dec!(1);
 
             let cost = base_cost as f64;
+
+            println!("{} {}", power, curr_level);
 
             cost.powf(power.to_f64().unwrap()).round() as u32
         }
@@ -353,6 +355,8 @@ impl Synced {
         let mut handle = self.handles.lock().await;
 
         let mut interval = tokio::time::interval(Duration::from_secs(1));
+
+        interval.tick().await;
 
         handle.sniff = Some(tokio::spawn(async move {
             loop {
