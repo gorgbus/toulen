@@ -11,13 +11,13 @@
     $: {
         switch (name) {
             case "auto":
-                max = $player_store.auto >= 100;
+                max = $player_store.auto_lvl >= 100;
                 break;
             case "regen":
-                max = $player_store.regen >= 100;
+                max = $player_store.regen_lvl >= 100;
                 break;
             case "stamina":
-                max = $player_store.stamina >= 100;
+                max = $player_store.stamina_lvl >= 100;
                 break;
         }
     }

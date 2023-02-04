@@ -1,8 +1,8 @@
 [package]
 name = "toulen-sniffer"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Toulen Sniffer game"
+authors = ["gorgbus"]
 license = ""
 repository = ""
 edition = "2021"
@@ -16,11 +16,16 @@ dotenv-build = "0.1"
 
 [dependencies]
 platform-dirs = "0.3.0"
-discord-rich-presence = "0.2.3"
 chrono = "0.4"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["devtools", "dialog-message", "fs-create-dir", "fs-read-dir", "fs-read-file", "fs-write-file", "shell-open", "updater", "window-close", "window-maximize", "window-minimize", "window-start-dragging", "window-unmaximize", "window-unminimize"] }
+anyhow = "1.0.68"
+ts-rs = "6.2.1"
+tokio = { version = "1.24.2", features = ["full"] }
+declarative-discord-rich-presence = { git = "https://github.com/KPidS/declarative-discord-rich-presence", branch = "main" }
+rust_decimal_macros = "1.28.0"
+rust_decimal = "1.28.0"
 
 [features]
 # by default Tauri runs in production mode

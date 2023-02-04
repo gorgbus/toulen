@@ -4,12 +4,94 @@
 )]
 
 use chrono::prelude::Utc;
-use discord_rich_presence::{
-    activity::{Activity, Assets, Timestamps},
-    DiscordIpc, DiscordIpcClient,
-};
+use declarative_discord_rich_presence::activity::{Activity, Assets, Timestamps};
 use platform_dirs::AppDirs;
 use std::{env, fs};
+use toulen_sniffer::{
+    synced_state::{Ability, Event},
+    PluginBuilder, SyncState,
+};
+
+#[tauri::command]
+fn sniff(player: SyncState<'_>) {
+    player.send_event(Event::Sniff);
+}
+
+#[tauri::command]
+fn init_states(player: SyncState<'_>) {
+    player.send_event(Event::Init);
+}
+
+#[tauri::command]
+fn buy(player: SyncState<'_>, ability: &str) {
+    match ability {
+        "stamina" => player.send_event(Event::Buy(Ability::Stamina)),
+        "regen" => player.send_event(Event::Buy(Ability::Regen)),
+        "auto" => player.send_event(Event::Buy(Ability::Auto)),
+        _ => {}
+    }
+}
+
+#[tauri::command]
+async fn activity_main_menu(player: SyncState<'_>) -> Result<(), ()> {
+    let activity = Activity::new().details("Ostrava Svinov").assets(
+        Assets::new()
+            .large_image("toulen")
+            .large_text("Toulen Sniffer"),
+    );
+
+    player.update_status(activity).await;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn activity_game(player: SyncState<'_>) -> Result<(), ()> {
+    let now = Utc::now();
+    let ts: i64 = now.timestamp();
+
+    let activity = Activity::new()
+        .timestamps(Timestamps::new().start(ts))
+        .details("Svinov Mosty")
+        .state("Sniffuje toluen")
+        .assets(
+            Assets::new()
+                .large_image("toulen")
+                .large_text("Toulen Sniffer"),
+        );
+
+    player.update_status(activity).await;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn start_breath(player: SyncState<'_>) -> Result<(), ()> {
+    player.breathe().await;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn stop_breath(player: SyncState<'_>) -> Result<(), ()> {
+    player.stop_breating().await;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn start_auto(player: SyncState<'_>) -> Result<(), ()> {
+    player.auto_sniff().await;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn stop_auto(player: SyncState<'_>) -> Result<(), ()> {
+    player.stop_auto_sniff().await;
+
+    Ok(())
+}
 
 #[tauri::command]
 fn get_save() -> String {
@@ -34,30 +116,21 @@ fn get_api_url() -> String {
 }
 
 fn main() {
-    let now = Utc::now();
-    let ts: i64 = now.timestamp();
-
-    let payload = Activity::new()
-        .timestamps(Timestamps::new().start(ts))
-        .details("Ostrava Svinov")
-        .state("Sniffuje toluen")
-        .assets(
-            Assets::new()
-                .large_image("toulen")
-                .large_text("Toulen Sniffer"),
-        );
-
-    let mut client = DiscordIpcClient::new("1054430080786509894").unwrap();
-
-    match client.connect() {
-        Ok(_) => match client.set_activity(payload) {
-            _ => (),
-        },
-        _ => (),
-    }
-
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_save, get_api_url])
+        .plugin(PluginBuilder::new().manage().build())
+        .invoke_handler(tauri::generate_handler![
+            get_save,
+            get_api_url,
+            start_breath,
+            stop_breath,
+            start_auto,
+            stop_auto,
+            activity_main_menu,
+            activity_game,
+            buy,
+            init_states,
+            sniff
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

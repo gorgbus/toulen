@@ -6,9 +6,16 @@
     import { onMount } from "svelte";
     import { appWindow } from "@tauri-apps/api/window";
     import Login from "$lib/components/Login.svelte";
-    import { opened, player_store } from "$lib/stores";
+    import {
+        init_player,
+        init_prices,
+        init_stats,
+        launch,
+        opened,
+        player_store,
+    } from "$lib/stores";
     import { get_player, update_player } from "$lib/api";
-    import { load } from "$lib/util";
+    import { invoke } from "@tauri-apps/api/tauri";
 
     let state = "Vyhledávání aktualizací...";
     let logout = false;
@@ -42,23 +49,31 @@
     };
 
     onMount(async () => {
+        await invoke("activity_main_menu");
+
+        if (!$launch) {
+            launch.set(true);
+
+            init_player();
+            init_prices();
+            init_stats();
+
+            await invoke("init_states");
+        }
+
         if ($player_store.id === -1) {
             // const userId = localStorage.getItem("user_id");
-
             // if (userId) {
             //     const player = await get_player();
-
             //     if (player) player_store.set(player);
             // }
-
-            load();
         }
 
         const version = await getVersion();
         // const update = await checkUpdate();
 
         if (/*!update.shouldUpdate*/ true) {
-            state = `Aktuální verze v${version}a`;
+            state = `Aktuální verze v${version}`;
             return;
         }
 

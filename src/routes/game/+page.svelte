@@ -1,10 +1,5 @@
 <script lang="ts">
-    import {
-        cant_breathe,
-        stamina_store,
-        opened,
-        player_store,
-    } from "$lib/stores";
+    import { opened, player_store } from "$lib/stores";
     import Upgrade from "$lib/components/Upgrade.svelte";
     import Money from "$lib/components/Money.svelte";
     import UpgradeMenu from "$lib/components/UpgradeMenu.svelte";
@@ -12,29 +7,33 @@
     import ShopIcon from "$lib/components/icons/ShopIcon.svelte";
     import SettingsIcon from "$lib/components/icons/SettingsIcon.svelte";
     import { goto } from "$app/navigation";
-    import Tooltip from "$lib/components/Tooltip.svelte";
-    import { sniff } from "$lib/fns/sniff";
     import { BASE_STAMINA, STAMINA_PER_LEVEL } from "$lib/constants";
-    import Dech from "$lib/components/logic/Dech.svelte";
-    import Save from "$lib/components/logic/Save.svelte";
-    import AutoSniff from "$lib/components/logic/AutoSniff.svelte";
+    import { invoke } from "@tauri-apps/api/tauri";
+    import { onDestroy, onMount } from "svelte";
 
     let sniffing = false;
     let unavailable = "";
 
     let upgrade = "";
-    let tooltip = "";
 
     let max_breath = BASE_STAMINA;
 
+    onMount(async () => {
+        await invoke("start_breath");
+        await invoke("start_auto");
+        await invoke("activity_game");
+    });
+
+    onDestroy(async () => {
+        await invoke("stop_breath");
+        await invoke("stop_auto");
+    });
+
     $: {
-        max_breath = BASE_STAMINA + STAMINA_PER_LEVEL * $player_store.stamina;
+        max_breath =
+            BASE_STAMINA + STAMINA_PER_LEVEL * $player_store.stamina_lvl;
     }
 </script>
-
-<Dech />
-<Save />
-<AutoSniff />
 
 <div
     class="bg-slate-700 h-full w-96 bg-opacity-25 p-4 flex flex-col justify-between"
@@ -50,7 +49,7 @@
         >
             <Upgrade
                 name="auto"
-                value={$player_store.auto}
+                value={$player_store.auto_lvl}
                 name_class={unavailable === "auto_sniff"
                     ? "text-red-500"
                     : "group-hover:text-amber-400 text-gray-100"}
@@ -62,7 +61,7 @@
         >
             <Upgrade
                 name="stamina"
-                value={$player_store.stamina}
+                value={$player_store.stamina_lvl}
                 name_class={unavailable === "boost_dech"
                     ? "text-red-500"
                     : "group-hover:text-blue-400 text-gray-100"}
@@ -74,7 +73,7 @@
         >
             <Upgrade
                 name="regen"
-                value={$player_store.regen}
+                value={$player_store.regen_lvl}
                 name_class={unavailable === "boost_prachy"
                     ? "text-red-500"
                     : "group-hover:text-green-400 text-gray-100"}
@@ -88,7 +87,7 @@
 
     <div>
         <label class="text-gray-100 font-semibold" for="dech"
-            >{$cant_breathe ? "kokot se dusí" : "dech"}</label
+            >{!$player_store.can_breathe ? "kokot se dusí" : "dech"}</label
         >
         <div
             id="dech"
@@ -97,15 +96,19 @@
             <div
                 id="dech_bar"
                 class={`rounded h-4 ${
-                    $cant_breathe ? "bg-red-600 cant_breath" : "bg-blue-400"
+                    !$player_store.can_breathe
+                        ? "bg-red-600 cant_breath"
+                        : "bg-blue-400"
                 }`}
                 style={`width: ${
-                    $cant_breathe ? 100 : ($stamina_store / max_breath) * 100
+                    !$player_store.can_breathe
+                        ? 100
+                        : ($player_store.stamina / max_breath) * 100
                 }%`}
             />
 
             <span class="absolute top-0 left-2 text-black text-xs font-semibold"
-                >{$stamina_store}/{max_breath}</span
+                >{$player_store.stamina}/{max_breath}</span
             >
         </div>
 
@@ -134,8 +137,8 @@
 </div>
 
 <div
-    on:click={sniff}
-    on:keypress={sniff}
+    on:click={async () => await invoke("sniff")}
+    on:keypress={async () => await invoke("sniff")}
     class="w-full h-full relative flex flex-col items-center justify-end overflow-hidden cursor-pointer"
 >
     <img

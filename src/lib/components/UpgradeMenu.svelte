@@ -1,22 +1,9 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-    import {
-        add_auto,
-        add_money,
-        add_regen,
-        add_stamina,
-        opened,
-        player_store,
-    } from "$lib/stores";
+    import { opened, player_store, prices_store } from "$lib/stores";
     import { formatter } from "$lib/util";
-    import Decimal from "decimal.js";
-    import {
-        BASE_AUTO_COST,
-        BASE_REGEN_COST,
-        BASE_STAMINA_COST,
-        STAMINA_PER_AUTO,
-        STAMINA_PER_LEVEL,
-    } from "$lib/constants";
+    import { STAMINA_PER_AUTO, STAMINA_PER_LEVEL } from "$lib/constants";
+    import { invoke } from "@tauri-apps/api/tauri";
 
     export let upgrade: string;
 
@@ -39,45 +26,32 @@
     let desc = "";
     let reason = "";
 
-    const get_cost = (base: number, level: number) => {
-        if (level === 0) return base;
-
-        const powers = [0, 0.03, 0.06];
-
-        const power = new Decimal(level)
-            .dividedToIntegerBy(3)
-            .dividedBy(10)
-            .plus(powers[level % 3])
-            .plus(1);
-
-        return new Decimal(base).pow(power).floor().toNumber();
-    };
-
     let can_buy = true;
+    let too_big_diff = false;
 
     $: {
         switch (upgrade) {
             case "auto":
-                cost = get_cost(BASE_AUTO_COST, $player_store.auto);
+                cost = $prices_store.auto;
 
-                max = $player_store.auto >= 100;
+                max = $player_store.auto_lvl >= 100;
 
                 const value =
-                    $player_store.auto > 10
-                        ? 1 + $player_store.auto - 10
-                        : $player_store.auto === 0
+                    $player_store.auto_lvl > 10
+                        ? 1 + $player_store.auto_lvl - 10
+                        : $player_store.auto_lvl === 0
                         ? 0
                         : 1;
 
                 const time =
-                    $player_store.auto < 10
-                        ? $player_store.auto === 0
+                    $player_store.auto_lvl < 10
+                        ? $player_store.auto_lvl === 0
                             ? 10
-                            : 11 - $player_store.auto
+                            : 11 - $player_store.auto_lvl
                         : 1;
 
                 desc =
-                    $player_store.auto === 0
+                    $player_store.auto_lvl === 0
                         ? "Momentálně nezískáváš nic."
                         : `Momentálně získáváš ${formatter.format(value)} za ${
                               time === 1
@@ -90,63 +64,56 @@
                 break;
 
             case "stamina":
-                cost = get_cost(BASE_STAMINA_COST, $player_store.stamina);
+                cost = $prices_store.stamina;
 
-                max = $player_store.stamina >= 100;
+                max = $player_store.stamina_lvl >= 100;
 
                 desc =
-                    $player_store.stamina === 0
+                    $player_store.stamina_lvl === 0
                         ? "Momentálně nemáš žádný dech navíc."
                         : `Momentálně máš bonus +${
-                              $player_store.stamina * STAMINA_PER_LEVEL
+                              $player_store.stamina_lvl * STAMINA_PER_LEVEL
                           } dechu navíc.`;
 
                 break;
 
             case "regen":
-                cost = get_cost(BASE_REGEN_COST, $player_store.regen);
+                cost = $prices_store.regen;
 
-                max = $player_store.regen >= 100;
+                max = $player_store.regen_lvl >= 100;
 
                 desc =
-                    $player_store.regen === 0
-                        ? "Momentálně nemáš žádnou bonusovou rychlost nádechu."
-                        : `Momentálně máš bonus +${$player_store.regen}% k rychlosti nádechu.`;
+                    $player_store.regen_lvl === 0
+                        ? "Momentálně nedostáváš žádný bonusový dech při nádechu."
+                        : `Momentálně dostáváš +${Math.floor(
+                              $player_store.regen_lvl / 3
+                          )} bonusového dechu při nádechu.`;
 
                 break;
         }
 
         if (cost > $player_store.money) can_buy = false;
-        else if (
+        else can_buy = true;
+
+        if (
             upgrade === "auto" &&
-            $player_store.auto - $player_store.stamina >= 2
+            $player_store.auto_lvl - $player_store.stamina_lvl >= 2
         ) {
-            can_buy = false;
+            too_big_diff = true;
 
             reason = `Nejdříve musíš zvýšit maximální dech aspoň o jeden level.`;
-        } else can_buy = true;
+        } else {
+            too_big_diff = false;
+            reason = "";
+        }
 
         if (max) can_buy = false;
     }
 
-    const buy = () => {
-        if ($player_store.money >= cost) {
-            add_money(-cost);
-
-            switch (upgrade) {
-                case "auto":
-                    add_auto(1);
-                    break;
-
-                case "stamina":
-                    add_stamina(1);
-                    break;
-
-                case "regen":
-                    add_regen(1);
-                    break;
-            }
-        }
+    const buy = async (ability: string) => {
+        await invoke("buy", {
+            ability,
+        });
     };
 </script>
 
@@ -167,8 +134,8 @@
         </p>
 
         <button
-            disabled={!can_buy}
-            on:click={buy}
+            disabled={!can_buy || too_big_diff}
+            on:click={async () => await buy(upgrade)}
             class={`rounded w-48 mt-4 h-12 bg-gray-700 font-semibold text-yellow-400 text-xl transition-all ${
                 max
                     ? ""
