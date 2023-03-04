@@ -1,15 +1,16 @@
-import { writable } from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 import { BASE_STAMINA } from "./constants";
 import { listen } from "@tauri-apps/api/event";
 import type { Player } from "$bindings/Player";
 import type { Prices } from "$bindings/Prices";
 import type { Stats } from "$bindings/Stats";
+import type { LoginStatus } from "$bindings/LoginStatus";
 
 export const launch = writable(false);
 export const opened = writable(false);
 
 export const player_store = writable({
-    id: -1,
+    id: "-1",
     money: 0,
     stamina_lvl: 0,
     regen_lvl: 0,
@@ -19,9 +20,21 @@ export const player_store = writable({
     can_sniff: true,
     toulen: 0,
     user: {
-        name: "none"
+        id: "-1",
+        name: "none",
+        tag: "0000",
     }
 });
+
+export const logged_in: Writable<LoginStatus> = writable({
+    success: false,
+    logged: false,
+    reason: "Not logged in",
+});
+
+export const init_login = () => {
+    listen<LoginStatus>("synced-state://logged-in-update", (event) => logged_in.set(event.payload));
+}
 
 export const init_player = () => {
     listen<Player>("synced-state://player-update", (event) => {

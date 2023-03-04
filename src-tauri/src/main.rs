@@ -5,12 +5,63 @@
 
 use chrono::prelude::Utc;
 use declarative_discord_rich_presence::activity::{Activity, Assets, Timestamps};
-use platform_dirs::AppDirs;
-use std::{env, fs};
+use std::env;
 use toulen_sniffer::{
+    api::{get_players, LeaderboardPlayer},
     synced_state::{Ability, Event},
     PluginBuilder, SyncState,
 };
+
+#[tauri::command]
+async fn stop_playtime(player: SyncState<'_>) -> Result<(), ()> {
+    player.stop_playtime().await;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn playtime(player: SyncState<'_>) -> Result<(), ()> {
+    player.playtime().await;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn get_players_cmd() -> Result<Vec<LeaderboardPlayer>, ()> {
+    let players = get_players().await;
+
+    match players {
+        Ok(players) => Ok(players),
+        Err(err) => {
+            println!("{}", err);
+            Err(())
+        }
+    }
+}
+#[tauri::command]
+fn logout(player: SyncState<'_>) {
+    player.send_event(Event::Logout);
+}
+
+#[tauri::command]
+fn logging(player: SyncState<'_>) {
+    player.send_event(Event::Logging);
+}
+
+#[tauri::command]
+fn logged(player: SyncState<'_>) {
+    player.send_event(Event::Logged);
+}
+
+#[tauri::command]
+fn set_token(player: SyncState<'_>, token: &str) {
+    player.send_event(Event::Token(String::from(token)));
+}
+
+#[tauri::command]
+fn login(player: SyncState<'_>) {
+    player.send_event(Event::Login);
+}
 
 #[tauri::command]
 fn sniff(player: SyncState<'_>) {
@@ -94,32 +145,40 @@ async fn stop_auto(player: SyncState<'_>) -> Result<(), ()> {
 }
 
 #[tauri::command]
-fn get_save() -> String {
-    let app_data = AppDirs::new(Some("toulen_sniffer"), false)
-        .unwrap()
-        .data_dir;
-
-    let res = String::from_utf8_lossy(
-        &fs::read(format!("{}/save.txt", app_data.to_string_lossy()))
-            .unwrap_or("".to_string().into_bytes()),
-    )
-    .to_string();
-
-    fs::remove_dir_all(&app_data).unwrap_or_default();
-
-    res
+fn get_api_url() -> String {
+    env!("API_URL").to_string()
 }
 
 #[tauri::command]
-fn get_api_url() -> String {
-    env!("API_URL").to_string()
+fn get_auth0_domain() -> String {
+    env!("AUTH0_DOMAIN").to_string()
+}
+
+#[tauri::command]
+fn get_auth0_client_id() -> String {
+    env!("AUTH0_CLIENT_ID").to_string()
+}
+
+#[tauri::command]
+fn get_auth0_audience() -> String {
+    env!("AUTH0_AUDIENCE").to_string()
+}
+
+#[tauri::command]
+fn get_auth0_redir_url() -> String {
+    let is_dev = option_env!("DEV");
+
+    if is_dev.is_some() {
+        String::from("http://localhost:1420")
+    } else {
+        String::from("https://tauri.localhost")
+    }
 }
 
 fn main() {
     tauri::Builder::default()
         .plugin(PluginBuilder::new().manage().build())
         .invoke_handler(tauri::generate_handler![
-            get_save,
             get_api_url,
             start_breath,
             stop_breath,
@@ -129,7 +188,19 @@ fn main() {
             activity_game,
             buy,
             init_states,
-            sniff
+            sniff,
+            playtime,
+            stop_playtime,
+            set_token,
+            login,
+            logged,
+            logging,
+            logout,
+            get_players_cmd,
+            get_auth0_domain,
+            get_auth0_client_id,
+            get_auth0_audience,
+            get_auth0_redir_url
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

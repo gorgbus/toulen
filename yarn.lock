@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@auth0/auth0-spa-js@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-2.0.3.tgz#b8b262bf276736ec3734b6c4737b8362aecf8654"
+  integrity sha512-eC3cBJCGOc+k4ZMxvKTo0KhhJJ4/9siA7C2RhDcWqSbrRcjB04RimM4Jp5ExgXtrwFhx8elk7DLxysrhTQYvjQ==
+
 "@esbuild/android-arm64@0.16.7":
   version "0.16.7"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.16.7.tgz#2df472016c77dba3e79596a84da74c541698910f"
@@ -447,11 +452,6 @@ debug@^4.3.4:
   integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
   dependencies:
     ms "2.1.2"
-
-decimal.js@^10.4.3:
-  version "10.4.3"
-  resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.4.3.tgz#1044092884d245d1b7f65725fa4ad4c6f781cc23"
-  integrity sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==
 
 deepmerge@^4.2.2:
   version "4.2.2"

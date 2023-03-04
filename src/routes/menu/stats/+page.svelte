@@ -2,7 +2,6 @@
     import { goto } from "$app/navigation";
     import { stats_store } from "$lib/stores";
     import { formatter } from "$lib/util";
-    import Decimal from "decimal.js";
 
     let stats: { name: string; value: string }[] = [];
 
@@ -32,12 +31,7 @@
             }
         }
 
-        const hours = new Decimal(time)
-            .dividedBy(60)
-            .mul(10)
-            .floor()
-            .dividedBy(10)
-            .toNumber();
+        const hours = Math.floor((Math.floor(time / 60) * 10) / 10);
 
         if (hours === 1) return "1 hodina";
 
@@ -62,7 +56,9 @@
             value: format_value(name, value),
         }));
 
-        stats = stats.sort((a, b) => a.name.length - b.name.length);
+        stats = stats
+            .sort((a, b) => a.name.length - b.name.length)
+            .filter((stat) => stat.name !== "id");
     }
 </script>
 

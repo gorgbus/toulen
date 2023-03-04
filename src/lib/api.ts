@@ -3,20 +3,20 @@ import { invoke } from "@tauri-apps/api/tauri";
 
 invoke("get_api_url").then((url) => axios.defaults.baseURL = url as string);
 
-axios.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("access_token");
+// axios.interceptors.request.use(
+//     (config) => {
+//         const token = localStorage.getItem("access_token");
 
-        if (token && config.headers) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-        }
+//         if (token && config.headers) {
+//             config.headers["Authorization"] = `Bearer ${token}`;
+//         }
 
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+//         return config;
+//     },
+//     (error) => {
+//         return Promise.reject(error);
+//     }
+// );
 
 export type Player = {
     id: number,

@@ -1,7 +1,8 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import { get_players, type Player } from "$lib/api";
+    import { invoke } from "@tauri-apps/api/tauri";
+    import type { LeaderboardPlayer as Player } from "$bindings/LeaderboardPlayer";
 
     let players: Player[] = [];
 
@@ -12,14 +13,14 @@
     let sorted_players: LPlayer[] = [];
 
     onMount(async () => {
-        const res = await get_players();
+        const res = await invoke<Player[]>("get_players_cmd");
 
         if (res) players = res;
 
         sorted_players = players
             .map((player) => ({
                 ...player,
-                level: player.auto + player.regen + player.stamina,
+                level: player.auto_lvl + player.regen_lvl + player.stamina_lvl,
             }))
             .sort((a, b) => b.level - a.level);
     });

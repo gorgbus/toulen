@@ -5,17 +5,16 @@
     import { relaunch } from "@tauri-apps/api/process";
     import { onMount } from "svelte";
     import { appWindow } from "@tauri-apps/api/window";
-    import Login from "$lib/components/Login.svelte";
     import {
+        init_login,
         init_player,
         init_prices,
         init_stats,
         launch,
-        opened,
         player_store,
     } from "$lib/stores";
-    import { get_player, update_player } from "$lib/api";
     import { invoke } from "@tauri-apps/api/tauri";
+    import { with_auth } from "$lib/util";
 
     let state = "Vyhledávání aktualizací...";
     let logout = false;
@@ -32,22 +31,6 @@
         state = "Aktualizace nainstalována";
     };
 
-    const close_game = async () => {
-        // await update_player();
-
-        appWindow.close();
-    };
-
-    const fn_logout = () => {
-        player_store.update((player) => ({
-            ...player,
-            id: -1,
-        }));
-        logout = false;
-
-        localStorage.removeItem("access_token");
-    };
-
     onMount(async () => {
         await invoke("activity_main_menu");
 
@@ -57,28 +40,25 @@
             init_player();
             init_prices();
             init_stats();
+            init_login();
 
             await invoke("init_states");
         }
 
-        if ($player_store.id === -1) {
-            // const userId = localStorage.getItem("user_id");
-            // if (userId) {
-            //     const player = await get_player();
-            //     if (player) player_store.set(player);
-            // }
-        }
-
         const version = await getVersion();
-        // const update = await checkUpdate();
+        const update = await checkUpdate();
 
-        if (/*!update.shouldUpdate*/ true) {
+        if (!update.shouldUpdate) {
             state = `Aktuální verze v${version}`;
             return;
         }
 
         state = "Dostupná aktualizace ke stažení";
     });
+
+    const auth = with_auth();
+
+    let logged_in = auth.logged_in;
 </script>
 
 <div class="flex flex-col items-center justify-center w-full h-full z-10">
@@ -111,7 +91,7 @@
     </button>
 
     <button
-        on:click={close_game}
+        on:click={appWindow.close}
         class="text-gray-100 transition-all font-semibold hover:text-red-500"
     >
         Odejít
@@ -124,11 +104,11 @@
     >
 
     <button
-        on:click={() => opened.set(true)}
-        disabled={$player_store.id !== -1 || true}
+        on:click={auth.login}
+        disabled={$logged_in.success}
         class="text-gray-100 absolute left-4 bottom-4"
     >
-        {#if $player_store.id === -1}
+        {#if !$logged_in.success}
             Přihlásit se
         {:else}
             <span>Přihlášen jako </span>
@@ -136,10 +116,10 @@
                 on:click={() => (logout = !logout)}
                 class="font-semibold text-green-500 relative"
             >
-                {$player_store.user?.name}
+                {$player_store.user.name}
                 <span
-                    on:click={fn_logout}
-                    on:keydown={fn_logout}
+                    on:click={auth.logout}
+                    on:keydown={auth.logout}
                     class={`${
                         logout ? "block" : "hidden"
                     } bottom-full absolute left-1/2 -translate-x-1/2 w-24 p-1 text-xs bg-gray-700 rounded text-red-500 shadow-lg`}
@@ -148,8 +128,4 @@
             </button>
         {/if}
     </button>
-
-    {#if $opened}
-        <Login />
-    {/if}
 </div>

@@ -21,12 +21,14 @@
     onMount(async () => {
         await invoke("start_breath");
         await invoke("start_auto");
+        await invoke("playtime");
         await invoke("activity_game");
     });
 
     onDestroy(async () => {
         await invoke("stop_breath");
         await invoke("stop_auto");
+        await invoke("stop_playtime");
     });
 
     $: {
