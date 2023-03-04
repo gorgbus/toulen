@@ -2,7 +2,6 @@
     import { page } from "$app/stores";
     import { appWindow } from "@tauri-apps/api/window";
     import "../app.css";
-    import { update_player } from "$lib/api";
 
     document.onkeydown = function (e) {
         if (e.key === "F5") {
@@ -15,8 +14,6 @@
     };
 
     const close = async () => {
-        // await update_player();
-
         appWindow.close();
     };
 

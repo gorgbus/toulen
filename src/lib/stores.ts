@@ -1,30 +1,15 @@
 import { writable, type Writable } from "svelte/store";
-import { BASE_STAMINA } from "./constants";
 import { listen } from "@tauri-apps/api/event";
 import type { Player } from "$bindings/Player";
 import type { Prices } from "$bindings/Prices";
 import type { Stats } from "$bindings/Stats";
 import type { LoginStatus } from "$bindings/LoginStatus";
+import type { TweakData } from "$bindings/TweakData";
 
 export const launch = writable(false);
 export const opened = writable(false);
 
-export const player_store = writable({
-    id: "-1",
-    money: 0,
-    stamina_lvl: 0,
-    regen_lvl: 0,
-    auto_lvl: 0,
-    stamina: BASE_STAMINA,
-    can_breathe: true,
-    can_sniff: true,
-    toulen: 0,
-    user: {
-        id: "-1",
-        name: "none",
-        tag: "0000",
-    }
-});
+export const player_store: Writable<Player> = writable();
 
 export const logged_in: Writable<LoginStatus> = writable({
     success: false,
@@ -45,11 +30,7 @@ export const init_player = () => {
     });
 }
 
-export const prices_store = writable({
-    stamina: 0,
-    regen: 0,
-    auto: 0,
-});
+export const prices_store: Writable<Prices> = writable();
 
 export const init_prices = () => {
     listen<Prices>("synced-state://prices-update", (event) => {
@@ -60,13 +41,15 @@ export const init_prices = () => {
     });
 }
 
-export const stats_store = writable({
-    money: 0,
-    spent_money: 0,
-    playtime: 0,
-    out_of_breath: 0,
-    sniffed: 0,
-});
+export const tweakdata_store: Writable<TweakData> = writable();
+
+export const init_tweakdata = () => {
+    listen<TweakData>("synced-state://tweakdata-update", (event) => {
+        tweakdata_store.set(event.payload);
+    });
+}
+
+export const stats_store: Writable<Stats> = writable();
 
 export const init_stats = () => {
     listen<Stats>("synced-state://stats-update", (event) => {

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { opened, player_store } from "$lib/stores";
+    import { opened, player_store, tweakdata_store } from "$lib/stores";
     import Upgrade from "$lib/components/Upgrade.svelte";
     import Money from "$lib/components/Money.svelte";
     import UpgradeMenu from "$lib/components/UpgradeMenu.svelte";
@@ -7,7 +7,6 @@
     import ShopIcon from "$lib/components/icons/ShopIcon.svelte";
     import SettingsIcon from "$lib/components/icons/SettingsIcon.svelte";
     import { goto } from "$app/navigation";
-    import { BASE_STAMINA, STAMINA_PER_LEVEL } from "$lib/constants";
     import { invoke } from "@tauri-apps/api/tauri";
     import { onDestroy, onMount } from "svelte";
 
@@ -16,7 +15,7 @@
 
     let upgrade = "";
 
-    let max_breath = BASE_STAMINA;
+    let max_breath = $tweakdata_store.base_stamina;
 
     onMount(async () => {
         await invoke("start_breath");
@@ -33,7 +32,8 @@
 
     $: {
         max_breath =
-            BASE_STAMINA + STAMINA_PER_LEVEL * $player_store.stamina_lvl;
+            $tweakdata_store.base_stamina +
+            $tweakdata_store.stamina_per_level * $player_store.stamina_lvl;
     }
 </script>
 

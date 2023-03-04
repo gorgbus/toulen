@@ -14,7 +14,7 @@ use crate::{
     api::{get, post, ApiUser},
     inits::Player,
     inits::{get_cost, get_last_id, save_last_id, CanEmit, LoginStatus, Prices, Stats, User},
-    tweak_data,
+    tweak_data::{self, TweakData},
 };
 
 use declarative_discord_rich_presence::activity::{Activity, Assets};
@@ -332,6 +332,7 @@ impl Synced {
                     }
 
                     Event::Init => {
+                        emit_update(&handle, &TweakData::default(), "tweakdata");
                         emit_update(&handle, &player.to_owned(), "player");
                         emit_update(&handle, &prices.to_owned(), "prices");
                         emit_update(&handle, &stats.to_owned(), "stats");

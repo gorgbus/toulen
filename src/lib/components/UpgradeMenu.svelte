@@ -1,8 +1,12 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-    import { opened, player_store, prices_store } from "$lib/stores";
+    import {
+        opened,
+        player_store,
+        prices_store,
+        tweakdata_store,
+    } from "$lib/stores";
     import { formatter } from "$lib/util";
-    import { STAMINA_PER_AUTO, STAMINA_PER_LEVEL } from "$lib/constants";
     import { invoke } from "@tauri-apps/api/tauri";
 
     export let upgrade: string;
@@ -59,7 +63,9 @@
                                   : [2, 3, 4].includes(time)
                                   ? `${time} sekundy`
                                   : `${time} sekund`
-                          }. S každým druhým upgradem se zvýší spotřeba dechu o ${STAMINA_PER_AUTO}.`;
+                          }. S každým druhým upgradem se zvýší spotřeba dechu o ${
+                              $tweakdata_store.stamina_per_auto
+                          }.`;
 
                 break;
 
@@ -72,7 +78,8 @@
                     $player_store.stamina_lvl === 0
                         ? "Momentálně nemáš žádný dech navíc."
                         : `Momentálně máš bonus +${
-                              $player_store.stamina_lvl * STAMINA_PER_LEVEL
+                              $player_store.stamina_lvl *
+                              $tweakdata_store.stamina_per_level
                           } dechu navíc.`;
 
                 break;

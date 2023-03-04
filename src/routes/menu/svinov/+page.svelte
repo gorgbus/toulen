@@ -10,6 +10,7 @@
         init_player,
         init_prices,
         init_stats,
+        init_tweakdata,
         launch,
         player_store,
     } from "$lib/stores";
@@ -41,6 +42,7 @@
             init_prices();
             init_stats();
             init_login();
+            init_tweakdata();
 
             await invoke("init_states");
         }
@@ -79,6 +81,7 @@
     <button
         on:click={() => goto("/menu/leaderboards")}
         class="text-gray-100 transition-all font-semibold hover:text-blue-400"
+        disabled={!state.startsWith("Aktuální verze ")}
     >
         Žebříčky
     </button>
@@ -86,6 +89,7 @@
     <button
         on:click={() => goto("/menu/stats")}
         class="text-gray-100 transition-all font-semibold hover:text-blue-400"
+        disabled={!state.startsWith("Aktuální verze ")}
     >
         Statistiky
     </button>
@@ -116,7 +120,7 @@
                 on:click={() => (logout = !logout)}
                 class="font-semibold text-green-500 relative"
             >
-                {$player_store.user.name}
+                {$player_store.user.name || "chyba"}
                 <span
                     on:click={auth.logout}
                     on:keydown={auth.logout}

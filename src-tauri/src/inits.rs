@@ -16,7 +16,7 @@ use rust_decimal_macros::dec;
 
 use orion::aead;
 
-const ENC_KEY: &[u8; 32] = b"d217851a0c9f0bb5f203b3ffa5e19f95";
+const ENC_KEY: &[u8] = env!("ENC_KEY").as_bytes();
 
 fn decrypt<T>(data: Vec<u8>) -> Result<T, String>
 where
