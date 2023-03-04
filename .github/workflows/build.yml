@@ -92,7 +92,7 @@ jobs:
         with:
           json_string: ${{ steps.new_gist_ver.outputs.content }}
           field: "platforms.windows-x86_64.signature"
-          value: ${{ fromJson(steps.sig.outputs.content).package.version }}
+          value: ${{ steps.sig.outputs.content }}
 
       - name: Edit meta.json download
         uses: gorgbus/edit-json-string@main
